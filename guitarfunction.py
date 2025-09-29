@@ -12,6 +12,7 @@ def reponse_impulsionnelle_filtre_RIF_temporel(N, omega):
     h = np.real(h)
     h = np.fft.fftshift(h)
     #h = h * np.hamming(N)
+    h = h / np.sum(h)
     return h, H
 
 def get_filtre_order(freq, gain_target_db):
@@ -28,7 +29,8 @@ def get_filtre_order(freq, gain_target_db):
 
 def get_enveloppe(audio_signal, filtre):
     audio_signal_redresse = np.abs(audio_signal)
-    return np.convolve(audio_signal_redresse, filtre)
+    filtre = filtre / np.sum(filtre)
+    return 2*np.convolve(audio_signal_redresse, filtre, mode="same")
 
 def analyse_freq(audio_data, fe):
     # Calcul de la FFT
