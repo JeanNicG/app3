@@ -1,33 +1,30 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy import signal
 from scipy.io import wavfile
 
-def reponse_impulsionnelle_filtre_RIF_temporel(N):
-    h = np.ones(N+1) / (N+1)
-    return h
+def reponse_impulsionnelle_filtre_RIF_temporel(N, omega):
+    freqs = np.linspace(0, 2*np.pi, N, endpoint=False)
+    H = np.zeros(N)
+    H[freqs <= omega] = 1.0
+    H[freqs >= (2*np.pi - omega)] = 1.0
+    h = np.fft.ifft(H)
+    h = np.real(h)
+    h = np.fft.fftshift(h)
+    #h = h * np.hamming(N)
+    return h, H
 
-def get_filtre_order(omega, gain_target_db):
+def get_filtre_order(freq, gain_target_db):
     gain_target_linear = 10**(gain_target_db/20)
-
-    best_N = None
-    best_gain_diff = float('inf')
-
-    for N in range(1, 1000, 1):
-        h = reponse_impulsionnelle_filtre_RIF_temporel(N)
-        
-        # reponse impulsionnelle a la frequence omega (domaine frequenciel) TFSD
-        H = 0+0j
-        for k in range(len(h)):
-            H += h[k] * np.exp(-1j * omega * k)
-
-        # garde le gain le plus proche de -3db a la frequence normalise pi/1000
-        gain = np.abs(H)
-        gain_diff = abs(gain - gain_target_linear)
-        if gain_diff < best_gain_diff:
-            best_gain_diff = gain_diff
-            best_N = N
-    print(f"N optimal: {best_N}")
-    return best_N
+    n = 0
+    sum = 0
+    while True:
+        n += 1
+        sum += np.exp(-1j * freq * n)
+        Xn = 1/n * sum
+        gain = np.abs(Xn)
+        if gain < gain_target_linear:
+            return n
 
 def get_enveloppe(audio_signal, filtre):
     audio_signal_redresse = np.abs(audio_signal)
@@ -124,3 +121,8 @@ def composition_bethoven(harmonique, fe, enveloppe, note_dict):
     musique = np.int16(np.array(musique) / np.max(np.abs(musique)) * 32767)
     wavfile.write("beethoven.wav", fe, musique)
     return musique
+
+def create_wav_sound(harmonic, fe, fondamental, enveloppe, duration, filename):
+    note = get_sound(harmonic, fe, fondamental, enveloppe, duration)
+    note = np.int16(np.array(note) / np.max(np.abs(note)) * 32767)
+    wavfile.write("notes/" + filename, fe, note)
