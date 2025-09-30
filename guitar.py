@@ -66,7 +66,7 @@ plt.xlabel("n")
 plt.ylabel("Amplitude")
 plt.title("Signal audio redressé et enveloppe")
 plt.subplots_adjust(
-    hspace=0.5,  # vertical space
-    wspace=0.4   # horizontal space
+    hspace=0.5,
+    wspace=0.4  
 )
 plt.show()
