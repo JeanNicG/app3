@@ -17,15 +17,19 @@ def reponse_impulsionnelle_filtre_RIF_temporel(N, omega):
 
 def get_filtre_order(freq, gain_target_db):
     gain_target_linear = 10**(gain_target_db/20)
-    n = 0
-    sum = 0
-    while True:
-        n += 1
-        sum += np.exp(-1j * freq * n)
-        Xn = 1/n * sum
+    bestN = None
+    best_diff = float("inf")
+    for N in range(1, 1200):
+        sum = 0
+        for n in range(1,N):
+            sum += np.exp(-1j * freq * n)
+        Xn = 1/N * sum
         gain = np.abs(Xn)
-        if gain < gain_target_linear:
-            return n
+        diff = abs(gain - gain_target_linear)
+        if diff < best_diff:
+            best_diff = diff
+            bestN = N
+    return bestN
 
 def get_enveloppe(audio_signal, filtre):
     audio_signal_redresse = np.abs(audio_signal)
