@@ -35,12 +35,13 @@ plt.title("Signal audio redresse")
 # reponse impulsionnelle temporelle du filtre RIF
 plt.subplot(3,2,3)
 w, h = signal.freqz(filtre_temporel, worN=fe)
-plt.plot(w, np.abs(h))
+plt.plot(w, 20*np.log10(np.abs(h)))
 plt.xlabel("ω (rad/échantillon)")
-plt.ylabel("Gain")
-plt.axhline(10**(-3/20), linestyle='--', label='0.7079')
-plt.axvline(omega, linestyle='--', label='wc')
+plt.ylabel("Gain (dB)")
+plt.axhline(-3, linestyle='--', label='-3 dB')
+plt.axvline(omega, linestyle='--', label='ωc')
 plt.xlim(0,0.05)
+plt.ylim(-75,0)
 plt.title("Réponse fréquentielle du filtre RIF")
 plt.legend()
 # Enveloppe temporelle du signal
@@ -49,7 +50,7 @@ plt.plot(enveloppe)
 plt.xlabel("n")
 plt.ylabel("Amplitude")
 plt.title("Enveloppe temporelle du signal")
-## 32 premieres harmoniques
+# 32 premieres harmoniques
 plt.subplot(3,2,5)
 freqs = [h["frequence"] for h in harmonique]
 gains = [h["gain"] for h in harmonique]
@@ -64,4 +65,8 @@ plt.plot(enveloppe)
 plt.xlabel("n")
 plt.ylabel("Amplitude")
 plt.title("Signal audio redressé et enveloppe")
+plt.subplots_adjust(
+    hspace=0.5,  # vertical space
+    wspace=0.4   # horizontal space
+)
 plt.show()
